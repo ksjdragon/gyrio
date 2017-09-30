@@ -1,3 +1,4 @@
+
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = screen.width;
@@ -21,3 +22,10 @@ console.log(generateString());
 
 ctx.fillStyle = "#000";
 ctx.fillRect(0,0, canvas.width, canvas.height);
+
+function getWebsite(geturl) {
+    xmlhttp=new XMLHttpRequest();
+    xmlhttp.open("GET", geturl, false);
+    xmlhttp.send();
+    var data = xmlhttp.responseText;
+}
