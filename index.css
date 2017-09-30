@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+@import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
+
+html {
+	font-family: 'Raleway';
+	/*background-color: #15171B;*/
+}
+
+body {
+	margin: 0;
+}
