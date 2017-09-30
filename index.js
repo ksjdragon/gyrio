@@ -1,13 +1,15 @@
-
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-canvas.width = screen.width;
-canvas.height = screen.height;
+canvas.width = window.innerWidth;
+canvas.height =  window.innerHeight;
+
+var frames = [
+	"0"
+];
 
 function randInt(min,max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 
 function generateString() {
 	var final = "";
@@ -18,10 +20,25 @@ function generateString() {
 	return final;
 }
 
-console.log(generateString());
+function generateFrames(string, speed) {
+	// Speed is in bits per second
 
-ctx.fillStyle = "#000";
-ctx.fillRect(0,0, canvas.width, canvas.height);
+}
+
+function drawFrame(frame) {
+	ctx.beginPath();
+	var frame = frames[frame];
+	for(var i = 0; i < frame.length; i++) {
+		if(frame[i] === "0") {
+			console.log("asdf");
+			ctx.beginPath();
+			ctx.moveTo(0,canvas.height/2);
+			ctx.lineTo(canvas.width,canvas.height/2);
+			ctx.strokeStyle="#4CAF50";
+			ctx.stroke();
+		}
+	}
+}
 
 function getWebsite(geturl) {
     xmlhttp=new XMLHttpRequest();
@@ -29,3 +46,8 @@ function getWebsite(geturl) {
     xmlhttp.send();
     var data = xmlhttp.responseText;
 }
+
+ctx.fillStyle = "#000";
+ctx.fillRect(0,0, canvas.width, canvas.height);
+generateFrames(generateString());
+drawFrame(0);
