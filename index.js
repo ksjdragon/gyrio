@@ -3,12 +3,20 @@ var ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height =  window.innerHeight;
 
-var frames = [
-	"0"
-];
+var frames = [];
 
 function randInt(min,max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function toBinary(text){
+	var output = "";
+	for (var i = 0; i < text.length; i++)
+	{
+		var letter = text[i].charCodeAt(0).toString(2);
+		output += "0".repeat(8-letter.length) + letter;
+	}
+	return output;
 }
 
 function generateString() {
@@ -20,24 +28,65 @@ function generateString() {
 	return final;
 }
 
-function generateFrames(string, speed) {
-	// Speed is in bits per second
-
-}
-
-function drawFrame(frame) {
-	ctx.beginPath();
-	var frame = frames[frame];
-	for(var i = 0; i < frame.length; i++) {
-		if(frame[i] === "0") {
-			console.log("asdf");
-			ctx.beginPath();
-			ctx.moveTo(0,canvas.height/2);
-			ctx.lineTo(canvas.width,canvas.height/2);
-			ctx.strokeStyle="#4CAF50";
-			ctx.stroke();
+function generateFrames(frame, string, width, height, rate) {
+	// Rate is in bits per second
+	// 30 frames per second
+	var shift = canvas.width-rate*width*frame/30;
+	var bitsToCalc = Math.ceil(rate*width*frame/(width*30));
+	var output = [];
+	console.log(shift);
+	console.log(bitsToCalc);
+	for(var i = 0; i < bitsToCalc; i++) {
+		var x = i*width;
+		if(parseInt(string[i])) {
+			output.push([x+shift, -height+canvas.height/2]);
+			output.push([x+width+shift, -height+canvas.height/2]);
+			if(string[i-1] === 0) {
+				output.push([x+width+shift, canvas.height/2]);
+			}
+		} else {
+			output.push([x+shift, canvas.height/2]);
+			output.push([x+width+shift,canvas.height/2]);
 		}
 	}
+	return output;
+
+	/*var currentBit = ((frame/30)*scrollRate)/width;
+	var shift = currentBit - Math.floor(currentBit);
+	for(var i = Math.floor(currentBit); i++; i<(bitsPerSection+(Math.floor(currentBit)+1))){
+		var xVal = ((i-Math.Math.floor(currentBit))-shift)*width;
+		var yVal = canvas.height/2
+		if(string[i-1]=== 1 && string[i]=== 1){
+			frame.push([xVal,yVal+100]);//Assuming height is 100px
+			frame.push([xVal+width,yVal+100]);
+			frame.push([xVal+width,yVal]);
+		}
+		else if(string[i]===1){
+			frame.push([xVal,yVal]);
+			frame.push([xVal,yVal+100]);
+			frame.push([xVal+width,yVal+100]);
+			frame.push([xVal+width,yVal]);
+		}
+		else {
+			frame.push([xVal,yVal]);
+			frame.push([xVal.width,yVal]);
+		}
+	}
+	return uniq(frame);*/
+}
+var string = toBinary(getWebsite("https://www.google.com/"));
+
+function drawFrame(frame) {
+	ctx.fillRect(0,0, canvas.width, canvas.height);
+	ctx.beginPath();
+	var frame = generateFrames(frame, string, 100, 100, 10);
+	console.log(frame);
+	ctx.moveTo(0, canvas.height/2);
+	for(var i = 0; i < frame.length; i++) {
+		ctx.lineTo(frame[i][0], frame[i][1]);
+	}
+	ctx.strokeStyle="#4CAF50";
+	ctx.stroke();
 }
 
 function getWebsite(geturl) {
@@ -49,5 +98,10 @@ function getWebsite(geturl) {
 
 ctx.fillStyle = "#000";
 ctx.fillRect(0,0, canvas.width, canvas.height);
-generateFrames(generateString());
-drawFrame(0);
+
+function animate(n) {
+	drawFrame(n);
+	setTimeout(function() { animate(n+1) }, 100/3);
+}
+
+animate(0);
