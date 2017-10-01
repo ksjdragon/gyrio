@@ -215,16 +215,16 @@ function image(input) {
 function search() {
 	var input = document.getElementById("urlInput");
 	var value = input.value;
-	if(value === "" || value === website) return;
+	if(value === "" || value === website && type !== "IV") return;
 	website = value;
 	visualCtx.fillStyle = "#1a1a1a";
 	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	try {
+		document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
+	} catch(err) {}
 	switch(type) {
 		case "LO":
 			var data = convertData(getWebsite(website),2);
-			try {
-				document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
-			} catch(err) {}
 			doSound = false;
 			doAnimate = false;
 			setTimeout(function() {
@@ -236,9 +236,6 @@ function search() {
 			break;
 		case "DA":
 			var data = convertData(getWebsite(website),8);
-			try {
-				document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
-			} catch(err) {}
 			doAnimate = false;
 			doSound = false;
 			setTimeout(function() {
