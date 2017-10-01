@@ -11,10 +11,10 @@ function hexToRGB(hex) {
 }
 
 function  convertData(text, base){
-	if(text.length < 150) {
-		website = "";
-		return;
-	}
+	// if(text.length < 150) {
+	// 	website = "";
+	// 	return;
+	// }
 	var output = "";
 	for (var i = 0; i < text.length; i++)
 	{
@@ -131,7 +131,12 @@ function getWebsite(url) {
     	}
     }
 	xhr.send();
-	return xhr.responseText;
+	console.log(xhr.status);
+	if (xhr.status === 200) {
+		return xhr.responseText;
+	} else {
+		return undefined;
+	}
 }
 
 function animate(n , input) {
