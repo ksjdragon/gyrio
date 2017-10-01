@@ -49,7 +49,7 @@ visualCtx.fillRect(0,0, canvas.width, canvas.height);
 function generateFrames(frame, string, width, height, rate) {
 	// Rate is in bits per second
 	// 30 frames per second
-	var bitsPerSection = Math.ceil(canvas.width/width)+1;
+	var bitsPerSection = Math.ceil(canvas.width/width)+2;
 	var shift = canvas.width-rate*width*frame/30;
 	var bitsToCalc = Math.ceil(rate*width*frame/(width*30));
 	var output = [];
@@ -91,7 +91,7 @@ function drawFrame2(frame ,input) {
 		visualCtx.beginPath();
 		var frame1 = generateFrames(frame, input, 100, 100, 5);
 		console.log(frame1);
-		frame1= rotate(frame1,30);
+		//frame1= rotate(frame1,30);
 		var xStart = canvas.width/2;
 		var yStart = 10*j + canvas.height/2;
 		var hMM = [xStart*Math.cos(toRad(30))-yStart*Math.sin(toRad(30)),xStart*Math.sin(toRad(30))+yStart*Math.cos(toRad(30))];
@@ -103,6 +103,7 @@ function drawFrame2(frame ,input) {
 		visualCtx.stroke();
 	}
 }
+
 function toRad(theta){
 	return theta*(Math.PI/180);
 }
@@ -155,6 +156,7 @@ visualCtx.fillRect(0,0, canvas.width, canvas.height);
 var osc;
 function sound(n, input) {
 	if(!doSound) {
+		document.getElementById("DAText").innerHTML = "";
 		osc.stop();
 		return;
 	}
@@ -168,7 +170,8 @@ function sound(n, input) {
 	}
     // var max = 523.25;
     // var min = 130.81;
-	  osc.frequency.value = freq[input[n]];
+    document.getElementById("DAText").innerHTML = input[n];
+	osc.frequency.value = freq[input[n]];
     // osc.frequency.value = parseInt(input.substr(n, 10), 2);
     // var rand = randInt(130, 523);
     // var direction = 1;
