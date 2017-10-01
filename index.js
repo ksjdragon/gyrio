@@ -1,20 +1,13 @@
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height =  window.innerHeight;
-
-var frames = [];
-
 function randInt(min,max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function toBinary(text){
+function  convertData(text, base){
 	var output = "";
 	for (var i = 0; i < text.length; i++)
 	{
-		var letter = text[i].charCodeAt(0).toString(2);
-		output += "0".repeat(8-letter.length) + letter;
+		var letter = text[i].charCodeAt(0).toString(base);
+		output += letter;
 	}
 	return output;
 }
@@ -35,8 +28,6 @@ function generateFrames(frame, string, width, height, rate) {
 	var shift = canvas.width-rate*width*frame/30;
 	var bitsToCalc = Math.ceil(rate*width*frame/(width*30));
 	var output = [];
-	console.log(shift);
-	console.log(bitsToCalc);
 	for(var i = bitsToCalc-bitsPerSection; i < bitsToCalc; i++) {
 		try {
 			var x = i*width;
@@ -55,19 +46,16 @@ function generateFrames(frame, string, width, height, rate) {
 	return output;
 }
 
-var string = toBinary(getWebsite("https://www.google.com"));
-
-function drawFrame(frame) {
-	ctx.fillRect(0,0, canvas.width, canvas.height);
-	ctx.beginPath();
-	var frame = generateFrames(frame, string, 100, 100, 10000000000000);
-	console.log(frame);
-	ctx.moveTo(0, canvas.height/2);
+function drawFrame(frame ,input) {
+	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	visualCtx.beginPath();
+	var frame = generateFrames(frame, input, 100, 100, 100);
+	visualCtx.moveTo(0, canvas.height/2);
 	for(var i = 0; i < frame.length; i++) {
-		ctx.lineTo(frame[i][0], frame[i][1]);
+		visualCtx.lineTo(frame[i][0], frame[i][1]);
 	}
-	ctx.strokeStyle="#4CAF50";
-	ctx.stroke();
+	visualCtx.strokeStyle="#4CAF50";
+	visualCtx.stroke();
 }
 
 function getWebsite(url) {
@@ -78,17 +66,39 @@ function getWebsite(url) {
     return xhr.responseText;
 }
 
-function animate(n) {
+function animate(n , input) {
 	if(!doAnimate) return;
-	drawFrame(n);
-	setTimeout(function() { animate(n+1) }, 100/3);
+	drawFrame(n, input);
+	setTimeout(function() { animate(n+1, input) }, 100/3);
 }
 
-ctx.fillStyle = "#000";
-ctx.fillRect(0,0, canvas.width, canvas.height);
+function sound(n, input) {
+	if(n === 0) {
+		osc.connect(audioCtx.destination);
+		osc2.connect(audioCtx.destination);
+		osc3.connect(audioCtx.destination);
+		osc.start(0);
+	}
+	osc.frequency.value = freq[input[n]];
+	setTimeout(function() { sound(n+1, input); }, 500); 
+}
 
+var canvas = document.getElementById("canvas");
+var visualCtx = canvas.getContext("2d");
+var audioCtx = new window.AudioContext();
+var osc = audioCtx.createOscillator();
 var doAnimate = true;
+var freq = [440, 494, 523, 587, 660, 698, 784, 880];
 
-animate(0);
+canvas.width = window.innerWidth;
+canvas.height =  window.innerHeight;
+
+visualCtx.fillStyle = "#000";
+visualCtx.fillRect(0,0, canvas.width, canvas.height);
+
+
+animate(0, convertData(getWebsite("https://www.google.com"), 2));
+sound(0, convertData(getWebsite("https://www.google.com"), 8));
+
 
 
