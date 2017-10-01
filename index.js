@@ -53,36 +53,14 @@ function generateFrames(frame, string, width, height, rate) {
 		} catch(err) {}
 	}
 	return output;
-
-	/*var currentBit = ((frame/30)*scrollRate)/width;
-	var shift = currentBit - Math.floor(currentBit);
-	for(var i = Math.floor(currentBit); i++; i<(bitsPerSection+(Math.floor(currentBit)+1))){
-		var xVal = ((i-Math.Math.floor(currentBit))-shift)*width;
-		var yVal = canvas.height/2
-		if(string[i-1]=== 1 && string[i]=== 1){
-			frame.push([xVal,yVal+100]);//Assuming height is 100px
-			frame.push([xVal+width,yVal+100]);
-			frame.push([xVal+width,yVal]);
-		}
-		else if(string[i]===1){
-			frame.push([xVal,yVal]);
-			frame.push([xVal,yVal+100]);
-			frame.push([xVal+width,yVal+100]);
-			frame.push([xVal+width,yVal]);
-		}
-		else {
-			frame.push([xVal,yVal]);
-			frame.push([xVal.width,yVal]);
-		}
-	}
-	return uniq(frame);*/
 }
+
 var string = toBinary(getWebsite("https://www.google.com"));
 
 function drawFrame(frame) {
 	ctx.fillRect(0,0, canvas.width, canvas.height);
 	ctx.beginPath();
-	var frame = generateFrames(frame, string, 100, 100, 10);
+	var frame = generateFrames(frame, string, 100, 100, 10000000000000);
 	console.log(frame);
 	ctx.moveTo(0, canvas.height/2);
 	for(var i = 0; i < frame.length; i++) {
@@ -92,22 +70,25 @@ function drawFrame(frame) {
 	ctx.stroke();
 }
 
-function getWebsite(geturl) {
-    xmlhttp=new XMLHttpRequest();
-    xmlhttp.open("GET", geturl, false);
-    xmlhttp.send();
-    var data = xmlhttp.responseText;
+function getWebsite(url) {
+	var proxy = "https://cors-anywhere.herokuapp.com/";
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", proxy+url, false);
+    xhr.send();
+    return xhr.responseText;
+}
+
+function animate(n) {
+	if(!doAnimate) return;
+	drawFrame(n);
+	setTimeout(function() { animate(n+1) }, 100/3);
 }
 
 ctx.fillStyle = "#000";
 ctx.fillRect(0,0, canvas.width, canvas.height);
 
-function animate(n) {
-	if(!animate) return;
-	drawFrame(n);
-	setTimeout(function() { animate(n+1) }, 100/3);
-}
+var doAnimate = true;
 
 animate(0);
 
-var animate = false;
+
