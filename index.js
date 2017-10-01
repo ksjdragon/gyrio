@@ -24,7 +24,7 @@ function generateString() {
 function generateFrames(frame, string, width, height, rate) {
 	// Rate is in bits per second
 	// 30 frames per second
-	var bitsPerSection = Math.ceil(canvas.width/width);
+	var bitsPerSection = Math.ceil(canvas.width/width)+1;
 	var shift = canvas.width-rate*width*frame/30;
 	var bitsToCalc = Math.ceil(rate*width*frame/(width*30));
 	var output = [];
@@ -45,19 +45,49 @@ function generateFrames(frame, string, width, height, rate) {
 	}
 	return output;
 }
-
 function drawFrame(frame ,input) {
 	visualCtx.fillRect(0,0, canvas.width, canvas.height);
-	visualCtx.beginPath();
-	var frame = generateFrames(frame, input, 100, 100, 100);
-	visualCtx.moveTo(0, canvas.height/2);
-	for(var i = 0; i < frame.length; i++) {
-		visualCtx.lineTo(frame[i][0], frame[i][1]);
+		visualCtx.beginPath();
+		var frame1 = generateFrames(frame, input, 100, 100, 5);
+		console.log(frame1);;
+		visualCtx.moveTo(0,(canvas.height/2)-100);
+		for(var i = 1; i < frame1.length; i++) {
+			visualCtx.lineTo(frame1[i][0],frame1[i][1]);
+		}
+		visualCtx.strokeStyle="#006064";
+		visualCtx.stroke();
 	}
-	visualCtx.strokeStyle="#4CAF50";
-	visualCtx.stroke();
 }
+function drawFrame2(frame ,input) {
+	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	var ColorList = ["006064"/*,"00838F","0097A7","00ACC1","00B8D4","00E5FF","18FFFF","84FFFF"*/];
 
+	for(var j=0;j<ColorList.length;j++){
+		visualCtx.beginPath();
+		var frame1 = generateFrames(frame, input, 100, 100, 5);
+		console.log(frame1);
+		frame1= rotate(frame1,30);
+		var xStart = canvas.width/2;
+		var yStart = 10*j + canvas.height/2;
+		var hMM = [xStart*Math.cos(toRad(30))-yStart*Math.sin(toRad(30)),xStart*Math.sin(toRad(30))+yStart*Math.cos(toRad(30))];
+		visualCtx.moveTo(0,(canvas.height/2)-100);
+		for(var i = 1; i < frame1.length; i++) {
+			visualCtx.lineTo(frame1[i][0], /*0.05*(j+1)*(*/frame1[i][1]-canvas.height/2/*-canvas.height/2)+canvas.height/2*/);
+		}
+		visualCtx.strokeStyle="#"+ ColorList[j];
+		visualCtx.stroke();
+	}
+}
+function toRad(theta){
+	return theta*(Math.PI/180);
+}
+function rotate(list,theta){
+	var output = [];
+	for(var i=0;i < list.length;i++){
+		output.push([list[i][0]*Math.cos(toRad(theta))-list[i][1]*Math.sin(toRad(theta)),list[i][0]*Math.sin(toRad(theta))+list[i][1]*Math.cos(toRad(theta))]);
+	}
+	return output;
+}
 function getWebsite(url) {
 	var proxy = "https://cors-anywhere.herokuapp.com/";
     var xhr = new XMLHttpRequest();
@@ -72,7 +102,7 @@ function animate(n , input) {
 	setTimeout(function() { animate(n+1, input) }, 100/3);
 }
 
-function sound(n, input) {
+/*function sound(n, input) {
 	if(n === 0) {
 		osc.connect(audioCtx.destination);
 		osc2.connect(audioCtx.destination);
@@ -82,14 +112,14 @@ function sound(n, input) {
 	osc.frequency.value = freq[input[n]];
 	setTimeout(function() { sound(n+1, input); }, 500); 
 }
-
-var canvas = document.getElementById("canvas");
-var visualCtx = canvas.getContext("2d");
-var audioCtx = new window.AudioContext();
-var osc = audioCtx.createOscillator();
+*/
 var doAnimate = true;
-var freq = [440, 494, 523, 587, 660, 698, 784, 880];
+var visualCtx = canvas.getContext("2d");
+/*var audioCtx = new window.AudioContext();
+var osc = audioCtx.createOscillator();
 
+var freq = [440, 494, 523, 587, 660, 698, 784, 880];
+*/
 canvas.width = window.innerWidth;
 canvas.height =  window.innerHeight;
 
@@ -98,7 +128,7 @@ visualCtx.fillRect(0,0, canvas.width, canvas.height);
 
 
 animate(0, convertData(getWebsite("https://www.google.com"), 2));
-sound(0, convertData(getWebsite("https://www.google.com"), 8));
+//sound(0, convertData(getWebsite("https://www.google.com"), 8));
 
 
 
