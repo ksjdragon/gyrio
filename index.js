@@ -31,23 +31,26 @@ function generateString() {
 function generateFrames(frame, string, width, height, rate) {
 	// Rate is in bits per second
 	// 30 frames per second
+	var bitsPerSection = Math.ceil(canvas.width/width);
 	var shift = canvas.width-rate*width*frame/30;
 	var bitsToCalc = Math.ceil(rate*width*frame/(width*30));
 	var output = [];
 	console.log(shift);
 	console.log(bitsToCalc);
-	for(var i = 0; i < bitsToCalc; i++) {
-		var x = i*width;
-		if(parseInt(string[i])) {
-			output.push([x+shift, -height+canvas.height/2]);
-			output.push([x+width+shift, -height+canvas.height/2]);
-			if(string[i-1] === 0) {
-				output.push([x+width+shift, canvas.height/2]);
+	for(var i = bitsToCalc-bitsPerSection; i < bitsToCalc; i++) {
+		try {
+			var x = i*width;
+			if(parseInt(string[i])) {
+				output.push([x+shift, -height+canvas.height/2]);
+				output.push([x+width+shift, -height+canvas.height/2]);
+				if(string[i-1] === 0) {
+					output.push([x+width+shift, canvas.height/2]);
+				}
+			} else {
+				output.push([x+shift, canvas.height/2]);
+				output.push([x+width+shift,canvas.height/2]);
 			}
-		} else {
-			output.push([x+shift, canvas.height/2]);
-			output.push([x+width+shift,canvas.height/2]);
-		}
+		} catch(err) {}
 	}
 	return output;
 
@@ -74,7 +77,7 @@ function generateFrames(frame, string, width, height, rate) {
 	}
 	return uniq(frame);*/
 }
-var string = toBinary(getWebsite("https://www.google.com/"));
+var string = toBinary(getWebsite("https://www.google.com"));
 
 function drawFrame(frame) {
 	ctx.fillRect(0,0, canvas.width, canvas.height);
@@ -100,8 +103,11 @@ ctx.fillStyle = "#000";
 ctx.fillRect(0,0, canvas.width, canvas.height);
 
 function animate(n) {
+	if(!animate) return;
 	drawFrame(n);
 	setTimeout(function() { animate(n+1) }, 100/3);
 }
 
 animate(0);
+
+var animate = false;
