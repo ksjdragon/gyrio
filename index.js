@@ -45,19 +45,19 @@ function generateFrames(frame, string, width, height, rate) {
 	}
 	return output;
 }
+
 function drawFrame(frame ,input) {
 	visualCtx.fillRect(0,0, canvas.width, canvas.height);
-		visualCtx.beginPath();
-		var frame1 = generateFrames(frame, input, 100, 100, 5);
-		console.log(frame1);;
-		visualCtx.moveTo(0,(canvas.height/2)-100);
-		for(var i = 1; i < frame1.length; i++) {
-			visualCtx.lineTo(frame1[i][0],frame1[i][1]);
-		}
-		visualCtx.strokeStyle="#006064";
-		visualCtx.stroke();
+	visualCtx.beginPath();
+	var frame1 = generateFrames(frame, input, 100, 100, 5);
+	visualCtx.moveTo(0,(canvas.height/2)-100);
+	for(var i = 1; i < frame1.length; i++) {
+		visualCtx.lineTo(frame1[i][0],frame1[i][1]);
 	}
+	visualCtx.strokeStyle="#006064";
+	visualCtx.stroke();
 }
+
 function drawFrame2(frame ,input) {
 	visualCtx.fillRect(0,0, canvas.width, canvas.height);
 	var ColorList = ["006064"/*,"00838F","0097A7","00ACC1","00B8D4","00E5FF","18FFFF","84FFFF"*/];
@@ -81,6 +81,7 @@ function drawFrame2(frame ,input) {
 function toRad(theta){
 	return theta*(Math.PI/180);
 }
+
 function rotate(list,theta){
 	var output = [];
 	for(var i=0;i < list.length;i++){
@@ -88,10 +89,21 @@ function rotate(list,theta){
 	}
 	return output;
 }
+
 function getWebsite(url) {
 	var proxy = "https://cors-anywhere.herokuapp.com/";
     var xhr = new XMLHttpRequest();
     xhr.open("GET", proxy+url, false);
+    
+    xhr.onreadystatechange = function() {
+    	if(xhr.readyState === 4) {
+    		if(xhr.status === 200) {
+    		} else {
+    			document.getElementById("urlInput").value = "";
+				alert("Invalid URL!");
+    		}
+    	}
+    }
     xhr.send();
     return xhr.responseText;
 }
@@ -100,6 +112,31 @@ function animate(n , input) {
 	if(!doAnimate) return;
 	drawFrame(n, input);
 	setTimeout(function() { animate(n+1, input) }, 100/3);
+}
+
+var doAnimate = true;
+var visualCtx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height =  window.innerHeight;
+
+visualCtx.fillStyle = "#1a1a1a";
+visualCtx.fillRect(0,0, canvas.width, canvas.height);
+
+document.getElementsByClassName("fa-search")[0].onclick = function() {
+	var input = document.getElementById("urlInput");
+	var value = input.value;
+	if(value === "") return;
+	var data;
+	data = convertData(getWebsite(value),2);
+	doAnimate = false;
+	setTimeout(function() {
+		doAnimate = true; 
+		animate(0, data); 
+	}, 100/3);
+}
+
+document.getElementsByClassName("fa-cog")[0].onclick = function() {
+	document.getElementById("speedContainer").classList.toggle("show");
 }
 
 /*function sound(n, input) {
@@ -113,22 +150,9 @@ function animate(n , input) {
 	setTimeout(function() { sound(n+1, input); }, 500); 
 }
 */
-var doAnimate = true;
-var visualCtx = canvas.getContext("2d");
 /*var audioCtx = new window.AudioContext();
 var osc = audioCtx.createOscillator();
 
 var freq = [440, 494, 523, 587, 660, 698, 784, 880];
 */
-canvas.width = window.innerWidth;
-canvas.height =  window.innerHeight;
-
-visualCtx.fillStyle = "#000";
-visualCtx.fillRect(0,0, canvas.width, canvas.height);
-
-
-animate(0, convertData(getWebsite("https://www.google.com"), 2));
 //sound(0, convertData(getWebsite("https://www.google.com"), 8));
-
-
-

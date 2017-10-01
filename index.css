@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Raleway');
-@import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
 
 html {
 	font-family: 'Raleway';
@@ -8,4 +7,123 @@ html {
 
 body {
 	margin: 0;
+}
+
+header {
+	height: 7vh;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	background-color: rgba(255,255,255,0.05);
+}
+
+#title {
+	margin: 0;
+	padding-left: 2%;
+	padding-right: 2%;
+	font-family: "Raleway";
+	line-height: 5vh;
+	color: white;
+	font-weight: 100;
+	display:inline-block;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+	float: left;
+}
+
+#urlInput {
+	padding: 2%;
+	height: 100%;
+	width: 30%;
+	background-color: rgba(255,255,255,0.05);
+	border: 0;
+	border-radius: 3px;
+	display: inline-block;
+	position: relative;
+	top: 50%;
+	font-family: "Raleway";
+	transform: translateY(-50%);
+	outline: none;
+	color: white;
+	font-size: 110%;
+	float: left;
+}
+
+.fa-search, .fa-cog {
+	color: white;
+	float: left;
+	font-size: 140%;
+	display: inline-block;
+	height: 7vh;
+    width: 7vh;
+    line-height: 7vh !important;
+    text-align: center;
+    cursor: pointer;
+    background-color: rgba(255,255,255,0);
+    transition: background-color 0.2s ease;
+}
+
+.fa-search:hover, .fa-cog:hover {
+	background-color: rgba(255,255,255,0.1);
+}
+
+#settings {
+	position: absolute;
+	background-color: rgba(255,255,255,0.5);
+}
+
+.dropdown {
+	position: relative;
+	display: inline-block;
+}
+
+.dropdown h1 {
+	width: 100%;
+	font-size: 80%;
+	text-align: center;
+	line-height: none;
+	padding: 0;
+	font-family: "Raleway";
+	font-weight: 100;
+    font-size: 120%;
+    color: white;
+}
+
+#speedContainer div {
+	width: 80%;
+	margin: auto;
+}
+
+.dropdown input {
+	width: 100%;
+	cursor: pointer;
+	-webkit-appearance: none;
+	background-color: rgba(255,255,255, 0.1);
+	transition: background-color 0.2s ease;
+	outline: none;
+}
+
+.dropdown input:hover {
+	background-color: rgba(255,255,255, 0.12);
+}
+
+.dropdown input::-webkit-slider-thumb {
+	background: rgba(255,255,255,0.2);
+	-webkit-appearance: none;
+	height: 30%;
+  	width: 10%;
+}
+
+.dropdown-content {
+	display: none;
+	position: absolute;
+	top: 100%;
+    background-color: rgba(255,255,255,0.1);
+    width: 300%;
+    height: 150%;
+}
+
+.show {
+	display: block;
 }
