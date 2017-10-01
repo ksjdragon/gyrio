@@ -29,10 +29,24 @@ function generateString() {
 	return final;
 }
 
+var canvas = document.getElementById("canvas");
+var visualCtx = canvas.getContext("2d");
+
+
+var audioCtx = new window.AudioContext();
+var osc = audioCtx.createOscillator();
+var doAnimate = true;
+var freq = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+
+canvas.width = window.innerWidth;
+canvas.height =  window.innerHeight;
+
+visualCtx.fillStyle = "#000";
+visualCtx.fillRect(0,0, canvas.width, canvas.height);
 function generateFrames(frame, string, width, height, rate) {
 	// Rate is in bits per second
 	// 30 frames per second
-	var bitsPerSection = Math.ceil(canvas.width/width);
+	var bitsPerSection = Math.ceil(canvas.width/width)+1;
 	var shift = canvas.width-rate*width*frame/30;
 	var bitsToCalc = Math.ceil(rate*width*frame/(width*30));
 	var output = [];
@@ -57,19 +71,61 @@ function generateFrames(frame, string, width, height, rate) {
 function drawFrame(frame ,input) {
 	visualCtx.fillRect(0,0, canvas.width, canvas.height);
 	visualCtx.beginPath();
-	var frame = generateFrames(frame, input, 100, 100, 100);
-	visualCtx.moveTo(0, canvas.height/2);
-	for(var i = 0; i < frame.length; i++) {
-		visualCtx.lineTo(frame[i][0], frame[i][1]);
+	var frame1 = generateFrames(frame, input, 100, 100, 5);
+	visualCtx.moveTo(0,(canvas.height/2)-100);
+	for(var i = 1; i < frame1.length; i++) {
+		visualCtx.lineTo(frame1[i][0],frame1[i][1]);
 	}
-	visualCtx.strokeStyle="#4CAF50";
+	visualCtx.strokeStyle="#006064";
 	visualCtx.stroke();
+}
+
+function drawFrame2(frame ,input) {
+	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	var ColorList = ["006064"/*,"00838F","0097A7","00ACC1","00B8D4","00E5FF","18FFFF","84FFFF"*/];
+
+	for(var j=0;j<ColorList.length;j++){
+		visualCtx.beginPath();
+		var frame1 = generateFrames(frame, input, 100, 100, 5);
+		console.log(frame1);
+		frame1= rotate(frame1,30);
+		var xStart = canvas.width/2;
+		var yStart = 10*j + canvas.height/2;
+		var hMM = [xStart*Math.cos(toRad(30))-yStart*Math.sin(toRad(30)),xStart*Math.sin(toRad(30))+yStart*Math.cos(toRad(30))];
+		visualCtx.moveTo(0,(canvas.height/2)-100);
+		for(var i = 1; i < frame1.length; i++) {
+			visualCtx.lineTo(frame1[i][0], /*0.05*(j+1)*(*/frame1[i][1]-canvas.height/2/*-canvas.height/2)+canvas.height/2*/);
+		}
+		visualCtx.strokeStyle="#"+ ColorList[j];
+		visualCtx.stroke();
+	}
+}
+function toRad(theta){
+	return theta*(Math.PI/180);
+}
+
+function rotate(list,theta){
+	var output = [];
+	for(var i=0;i < list.length;i++){
+		output.push([list[i][0]*Math.cos(toRad(theta))-list[i][1]*Math.sin(toRad(theta)),list[i][0]*Math.sin(toRad(theta))+list[i][1]*Math.cos(toRad(theta))]);
+	}
+	return output;
 }
 
 function getWebsite(url) {
 	var proxy = "https://cors-anywhere.herokuapp.com/";
     var xhr = new XMLHttpRequest();
     xhr.open("GET", proxy+url, false);
+    
+    xhr.onreadystatechange = function() {
+    	if(xhr.readyState === 4) {
+    		if(xhr.status === 200) {
+    		} else {
+    			document.getElementById("urlInput").value = "";
+				alert("Invalid URL!");
+    		}
+    	}
+    }
     xhr.send();
     return xhr.responseText;
 }
@@ -78,6 +134,31 @@ function animate(n , input) {
 	if(!doAnimate) return;
 	drawFrame(n, input);
 	setTimeout(function() { animate(n+1, input); }, 100/3);
+}
+
+var doAnimate = true;
+var visualCtx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height =  window.innerHeight;
+
+visualCtx.fillStyle = "#1a1a1a";
+visualCtx.fillRect(0,0, canvas.width, canvas.height);
+
+document.getElementsByClassName("fa-search")[0].onclick = function() {
+	var input = document.getElementById("urlInput");
+	var value = input.value;
+	if(value === "") return;
+	var data;
+	data = convertData(getWebsite(value),2);
+	doAnimate = false;
+	setTimeout(function() {
+		doAnimate = true; 
+		animate(0, data); 
+	}, 100/3);
+}
+
+document.getElementsByClassName("fa-cog")[0].onclick = function() {
+	document.getElementById("speedContainer").classList.toggle("show");
 }
 
 function sound(n, input) {
@@ -100,27 +181,12 @@ function sound(n, input) {
 }
 
 
-
-var canvas = document.getElementById("canvas");
-var visualCtx = canvas.getContext("2d");
-
-
-var audioCtx = new window.AudioContext();
-var osc = audioCtx.createOscillator();
-var doAnimate = true;
-var freq = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
-
-canvas.width = window.innerWidth;
-canvas.height =  window.innerHeight;
-
-visualCtx.fillStyle = "#000";
-visualCtx.fillRect(0,0, canvas.width, canvas.height);
-
 function image(input) {
     n = 0;
     imagecan = document.createElement('canvas');
     imagecan.width = Math.floor(Math.sqrt(input.length/6));
     imagecan.height = imagecan.width;
+    imagecan.id = "imagecode";
     document.body.appendChild(imagecan);
     ctx = imagecan.getContext("2d");
 
@@ -146,7 +212,6 @@ function image(input) {
     ctx.putImageData(imageData, 0, 0);
 }
 
-var url = "http://www.purple.com/purple.html"
-animate(0, convertData(getWebsite(url), 2));
-sound(0, convertData(getWebsite(url), 8));
-image(convertData(getWebsite(url), 16));
+// animate(0, convertData(getWebsite(url), 2));
+// sound(0, convertData(getWebsite(url), 8));
+// image(convertData(getWebsite(url), 16));
