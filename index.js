@@ -2,6 +2,14 @@ function randInt(min,max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function hexToRGB(hex) {
+    var r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16);
+
+    return [r,g,b];
+}
+
 function  convertData(text, base){
 	var output = "";
 	for (var i = 0; i < text.length; i++)
@@ -69,26 +77,38 @@ function getWebsite(url) {
 function animate(n , input) {
 	if(!doAnimate) return;
 	drawFrame(n, input);
-	setTimeout(function() { animate(n+1, input) }, 100/3);
+	setTimeout(function() { animate(n+1, input); }, 100/3);
 }
 
 function sound(n, input) {
 	if(n === 0) {
 		osc.connect(audioCtx.destination);
-		osc2.connect(audioCtx.destination);
-		osc3.connect(audioCtx.destination);
-		osc.start(0);
+		  osc.start(0);
+      osc.type = "sawtooth";
+      // osc.frequency.value = 261.63;
+      temp = [];
 	}
-	osc.frequency.value = freq[input[n]];
-	setTimeout(function() { sound(n+1, input); }, 500); 
+    // var max = 523.25;
+    // var min = 130.81;
+	  osc.frequency.value = freq[input[n]];
+    // osc.frequency.value = parseInt(input.substr(n, 10), 2);
+    // var rand = randInt(130, 523);
+    // var direction = 1;
+    // if (rand < osc.frequency.value) {direction = -1;}
+    // osc.frequency.value += direction * input[n] * 10;
+	setTimeout(function() { sound(n+1, input); }, 500);
 }
+
+
 
 var canvas = document.getElementById("canvas");
 var visualCtx = canvas.getContext("2d");
+
+
 var audioCtx = new window.AudioContext();
 var osc = audioCtx.createOscillator();
 var doAnimate = true;
-var freq = [440, 494, 523, 587, 660, 698, 784, 880];
+var freq = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
 
 canvas.width = window.innerWidth;
 canvas.height =  window.innerHeight;
@@ -96,9 +116,37 @@ canvas.height =  window.innerHeight;
 visualCtx.fillStyle = "#000";
 visualCtx.fillRect(0,0, canvas.width, canvas.height);
 
+function image(input) {
+    n = 0;
+    imagecan = document.createElement('canvas');
+    imagecan.width = Math.floor(Math.sqrt(input.length/6));
+    imagecan.height = imagecan.width;
+    document.body.appendChild(imagecan);
+    ctx = imagecan.getContext("2d");
 
-animate(0, convertData(getWebsite("https://www.google.com"), 2));
-sound(0, convertData(getWebsite("https://www.google.com"), 8));
+    var imageData = ctx.getImageData(0,0,imagecan.width, imagecan.height);
 
+    for(var i = 0; i < imageData.data.length; i++) {
+        fill = hexToRGB(input.substr(n,6));
+        imageData.data[4*i] = fill[0];
+        imageData.data[4*i+1] = fill[1];
+        imageData.data[4*i+2] = fill[2];
+        imageData.data[4*i+3] = 255;
+        n += 6;
+    }
+    // fakeimage = document.createElement('canvas');
+    // fakeimage.width = imagecan.width;
+    // fakeimage.height = imagecan.height;
+    // fakeimage.getContext("2d").putImageData(imageData, 0, 0);
+    // ctx.canvas.width = 480;
+    // ctx.canvas.height = 480;
+    // ctx.scale(imagecan.width * (480/imagecan.width), imagecan.height *(480/imagecan.height));
+    // ctx.drawImage(fakeimage, 0, 0);
+    // console.log(fakeimage, ctx)
+    ctx.putImageData(imageData, 0, 0);
+}
 
-
+var url = "http://www.purple.com/purple.html"
+animate(0, convertData(getWebsite(url), 2));
+sound(0, convertData(getWebsite(url), 8));
+image(convertData(getWebsite(url), 16));
