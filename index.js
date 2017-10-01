@@ -11,6 +11,10 @@ function hexToRGB(hex) {
 }
 
 function  convertData(text, base){
+	if(text.length < 150) {
+		website = "";
+		return;
+	}
 	var output = "";
 	for (var i = 0; i < text.length; i++)
 	{
@@ -34,7 +38,6 @@ var visualCtx = canvas.getContext("2d");
 
 
 var audioCtx = new window.AudioContext();
-var osc = audioCtx.createOscillator();
 var doAnimate = true;
 var freq = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
 
@@ -71,7 +74,7 @@ function generateFrames(frame, string, width, height, rate) {
 function drawFrame(frame ,input) {
 	visualCtx.fillRect(0,0, canvas.width, canvas.height);
 	visualCtx.beginPath();
-	var frame1 = generateFrames(frame, input, 100, 100, 5);
+	var frame1 = generateFrames(frame, input, 100, 100, speed);
 	visualCtx.moveTo(0,(canvas.height/2)-100);
 	for(var i = 1; i < frame1.length; i++) {
 		visualCtx.lineTo(frame1[i][0],frame1[i][1]);
@@ -116,18 +119,18 @@ function getWebsite(url) {
 	var proxy = "https://cors-anywhere.herokuapp.com/";
     var xhr = new XMLHttpRequest();
     xhr.open("GET", proxy+url, false);
-    
     xhr.onreadystatechange = function() {
     	if(xhr.readyState === 4) {
     		if(xhr.status === 200) {
     		} else {
     			document.getElementById("urlInput").value = "";
 				alert("Invalid URL!");
+				
     		}
     	}
     }
-    xhr.send();
-    return xhr.responseText;
+	xhr.send();
+	return xhr.responseText;
 }
 
 function animate(n , input) {
@@ -136,7 +139,11 @@ function animate(n , input) {
 	setTimeout(function() { animate(n+1, input); }, 100/3);
 }
 
+var type = "LO";
+var speed = 5;
 var doAnimate = true;
+var doSound = false;
+var website = "";
 var visualCtx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height =  window.innerHeight;
@@ -144,30 +151,20 @@ canvas.height =  window.innerHeight;
 visualCtx.fillStyle = "#1a1a1a";
 visualCtx.fillRect(0,0, canvas.width, canvas.height);
 
-document.getElementsByClassName("fa-search")[0].onclick = function() {
-	var input = document.getElementById("urlInput");
-	var value = input.value;
-	if(value === "") return;
-	var data;
-	data = convertData(getWebsite(value),2);
-	doAnimate = false;
-	setTimeout(function() {
-		doAnimate = true; 
-		animate(0, data); 
-	}, 100/3);
-}
 
-document.getElementsByClassName("fa-cog")[0].onclick = function() {
-	document.getElementById("speedContainer").classList.toggle("show");
-}
-
+var osc;
 function sound(n, input) {
+	if(!doSound) {
+		osc.stop();
+		return;
+	}
 	if(n === 0) {
+		osc = audioCtx.createOscillator();
 		osc.connect(audioCtx.destination);
-		  osc.start(0);
-      osc.type = "sawtooth";
-      // osc.frequency.value = 261.63;
-      temp = [];
+		osc.start(0);
+      	osc.type = "sawtooth";
+      	// osc.frequency.value = 261.63;
+      	temp = [];
 	}
     // var max = 523.25;
     // var min = 130.81;
@@ -177,18 +174,21 @@ function sound(n, input) {
     // var direction = 1;
     // if (rand < osc.frequency.value) {direction = -1;}
     // osc.frequency.value += direction * input[n] * 10;
-	setTimeout(function() { sound(n+1, input); }, 500);
+	setTimeout(function() { sound(n+1, input); }, 10*speed);
 }
 
 
 function image(input) {
+	try {
+		document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
+	} catch(err) {}
     n = 0;
     imagecan = document.createElement('canvas');
     imagecan.width = Math.floor(Math.sqrt(input.length/6));
     imagecan.height = imagecan.width;
     imagecan.id = "imagecode";
     document.body.appendChild(imagecan);
-    ctx = imagecan.getContext("2d");
+    var ctx = imagecan.getContext("2d");
 
     var imageData = ctx.getImageData(0,0,imagecan.width, imagecan.height);
 
@@ -212,6 +212,148 @@ function image(input) {
     ctx.putImageData(imageData, 0, 0);
 }
 
-// animate(0, convertData(getWebsite(url), 2));
-// sound(0, convertData(getWebsite(url), 8));
-// image(convertData(getWebsite(url), 16));
+function search() {
+	var input = document.getElementById("urlInput");
+	var value = input.value;
+	if(value === "" || value === website) return;
+	website = value;
+	visualCtx.fillStyle = "#1a1a1a";
+	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	switch(type) {
+		case "LO":
+			var data = convertData(getWebsite(website),2);
+			try {
+				document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
+			} catch(err) {}
+			doSound = false;
+			doAnimate = false;
+			setTimeout(function() {
+				speed = 5;
+				doAnimate = true;
+				document.getElementById("speedInput").value = 5;
+				animate(0, data); 
+			}, 100/3);
+			break;
+		case "DA":
+			var data = convertData(getWebsite(website),8);
+			try {
+				document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
+			} catch(err) {}
+			doAnimate = false;
+			doSound = false;
+			setTimeout(function() {
+				speed = 50;
+				doSound = true;
+				document.getElementById("speedInput").value = 50;
+				sound(0, data); 
+			}, 100/3);
+			break;
+		case "IV":
+			var data = convertData(getWebsite(website),16);
+			doAnimate = false;
+			doSound = false;
+			setTimeout(function() {
+				image(data); 
+			}, 100/3);
+			break;
+	}
+}
+
+document.getElementsByClassName("fa-search")[0].onclick = function() {
+	search();
+}
+
+document.getElementById("urlInput").onkeypress = function(e) {
+    if(e.keyCode == 13) {
+        search();
+    }
+}
+
+
+document.getElementsByClassName("fa-cog")[0].onclick = function() {
+	document.getElementById("speedContainer").classList.toggle("show");
+}
+
+document.getElementsByClassName("fa-bars")[0].onclick = function() {
+	document.getElementById("modeContainer").classList.toggle("show");
+}
+
+window.onclick = function(event) {
+  if (!event.target.matches(".dropButton")) {
+
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    for (var i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
+document.getElementById("speedInput").onchange = function() {
+	speed = parseInt(this.value);
+}
+
+document.getElementById("LO").onclick = function() {
+	if(type === "LO") return;
+	if(website === "") {
+		alert("Please enter a website!");
+		return;
+	}
+	type = "LO";
+	try {
+		document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
+	} catch(err) {}
+	var data = convertData(getWebsite(website),2);
+	visualCtx.fillStyle = "#1a1a1a";
+	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	doSound = false;
+	doAnimate = false;
+	setTimeout(function() {
+		speed = 5;
+		doAnimate = true;
+		document.getElementById("speedInput").value = 5;
+		animate(0, data); 
+	}, 100/3);
+}
+
+document.getElementById("DA").onclick = function() {
+	if(type === "DA") return;
+	if(website === "") {
+		alert("Please enter a website!");
+		return;
+	}
+	type = "DA";
+	try {
+		document.getElementById("imagecode").parentNode.removeChild(document.getElementById("imagecode"));
+	} catch(err) {}
+	var data = convertData(getWebsite(website),8);
+	visualCtx.fillStyle = "#1a1a1a";
+	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	doAnimate = false;
+	doSound = false;
+	setTimeout(function() {
+		speed = 50;
+		doSound = true;
+		document.getElementById("speedInput").value = 50;
+		sound(0, data); 
+	}, 100/3);
+}
+
+document.getElementById("IV").onclick = function() {
+	if(type === "IV") return;
+	if(website === "") {
+		alert("Please enter a website!");
+		return;
+	}
+	type = "IV";
+	var data = convertData(getWebsite(website),16);
+	visualCtx.fillStyle = "#1a1a1a";
+	visualCtx.fillRect(0,0, canvas.width, canvas.height);
+	doAnimate = false;
+	doSound = false;
+	setTimeout(function() {
+		image(data); 
+	}, 100/3);
+}
